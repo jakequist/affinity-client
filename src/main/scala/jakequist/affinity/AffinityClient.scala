@@ -118,7 +118,7 @@ class AffinityClient(apiKey: String)(implicit ws: WSClient, exc: ExecutionContex
     execGet("/organizations/fields").map(_.as[Seq[Field])
   }
 
-  
+
 
 
 
