@@ -8,9 +8,9 @@ A scala client for interacting with the [Affinity](https://www.affinity.co) API.
 
 val client = AffinityClient(YOUR_API_KEY)
 
-client.getLists()                  # => Future[Seq[List]]
-client.searchPeople(Some("Bob"))   # => Future[PersonSearchResponse]
-client.getOrg(12345)               # => Future[Org]
+client.getLists()                  // => Future[Seq[List]]
+client.searchPeople(Some("Bob"))   // => Future[PersonSearchResponse]
+client.getOrg(12345)               // => Future[Org]
 
 ``` 
 
