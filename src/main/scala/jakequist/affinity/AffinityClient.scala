@@ -37,6 +37,12 @@ class AffinityClient(apiKey: String)(implicit ws: WSClient, exc: ExecutionContex
     execGet("/lists" / id.toString).map(_.as[List])
   }
 
+  def getListByName(name:String) = {
+    getLists.map { list =>
+      list.find(_.name.equalsIgnoreCase(name))
+    }
+  }
+
   def getListEntries(listId: Int) = {
     execGet("/lists" / listId.toString / "list-entries").map(_.as[Seq[ListEntry]])
   }
@@ -64,7 +70,7 @@ class AffinityClient(apiKey: String)(implicit ws: WSClient, exc: ExecutionContex
     execGet(url).map(_.as[PersonSearchResponse])
   }
 
-  def listPeople(pageToken : Option[String] = None) = {
+  def getPersons(pageToken: Option[String] = None) = {
     searchPeople(pageToken = pageToken)
   }
 
@@ -86,12 +92,12 @@ class AffinityClient(apiKey: String)(implicit ws: WSClient, exc: ExecutionContex
     )
     if (phone_numbers.nonEmpty) body ++= Json.obj("phone_numbers" -> phone_numbers)
     if (org_ids.nonEmpty) body ++= Json.obj("organization_ids" -> org_ids)
-    execPost("/persons", body).map(_.as[Entity])
+    execPost("/persons", body).map(_.as[Person])
   }
 
 
-  def getPersonFields = {
-    execGet("/persons/fields").map(_.as[Seq[Field])
+  def getPersonFields() = {
+    execGet("/persons/fields").map(_.as[Seq[Field]])
   }
 
   def getRelationshipStrengths(internal_id: Option[Int] = None, external_id: Option[Int] = None) = {
@@ -102,7 +108,6 @@ class AffinityClient(apiKey: String)(implicit ws: WSClient, exc: ExecutionContex
   }
 
 
-
   def searchOrg(term: Option[String] = None, pageToken: Option[String] = None) = {
     var url: String = "/organizations"
     if (term.isDefined) url = url ? s"term=${term.get}"
@@ -110,20 +115,47 @@ class AffinityClient(apiKey: String)(implicit ws: WSClient, exc: ExecutionContex
     execGet(url).map(_.as[OrgSearchResponse])
   }
 
+  def listOrgs(pageToken: Option[String] = None) = {
+    searchOrg(pageToken = pageToken)
+  }
+
   def getOrg(id: Int) = {
     execGet("/organizations" / id.toString ? ("with_interaction_dates=true")).map(_.as[Org])
   }
 
-  def getOrgFields= {
-    execGet("/organizations/fields").map(_.as[Seq[Field])
+  def getOrgFields = {
+    execGet("/organizations/fields").map(_.as[Seq[Field]])
+  }
+
+
+  def searchOppty(term: Option[String] = None, pageToken: Option[String]) = {
+    var url: String = "/opportunities"
+    if (term.isDefined) url = url ? s"term=${term.get}"
+    if (pageToken.isDefined) url = url ? s"page_token=${pageToken.get}"
+    execGet(url).map(_.as[OrgSearchResponse])
+  }
+
+  def getOppty(id: Int) = {
+    execGet("/opportunities" / id.toString).map(_.as[Oppty])
+  }
+
+  def createOppty(name: String, listId: Int, personIds: Seq[Int] = Nil, orgIds: Seq[Int] = Nil) = {
+    var body = Json.obj(
+      "name" -> name,
+      "list_id" -> listId
+    )
+    if (personIds.nonEmpty) body ++= Json.obj("person_ids" -> personIds)
+    if (orgIds.nonEmpty) body ++= Json.obj("organization_ids" -> orgIds)
+    execPost("/opportunities", body).map(_.as[Oppty])
   }
 
 
 
 
 
-
-
+  def getPersonFieldValues(id:Int) = {
+    execGet("/field-values" ? s"person_id=${id}").map(_.as[Seq[FieldValue]])
+  }
 
 
 
